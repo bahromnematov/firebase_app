@@ -10,6 +10,7 @@ Future<void> main() async {
       options: FirebaseOptions(
         apiKey: "AIzaSyC8J3UJQaXEHY4NWAYUWvBfVhzJeJmuIko",
         authDomain: "fir-setup-3b87c.firebaseapp.com",
+        databaseURL: "https://fir-setup-3b87c-default-rtdb.firebaseio.com",
         projectId: "fir-setup-3b87c",
         storageBucket: "fir-setup-3b87c.firebasestorage.app",
         messagingSenderId: "760227373571",

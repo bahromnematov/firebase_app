@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:firebase_app/home_page.dart';
 import 'package:firebase_app/model/menu_model.dart';
 import 'package:firebase_app/service/rtdb_service.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddMenuPage extends StatefulWidget {
   const AddMenuPage({super.key});
@@ -13,7 +16,23 @@ class AddMenuPage extends StatefulWidget {
 class _AddMenuPageState extends State<AddMenuPage> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
+  TextEditingController _imageController = TextEditingController();
   bool isLoading = false;
+  File? _image;
+  final picker = ImagePicker();
+
+  Future _getImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        const snackBar = SnackBar(content: Text('Gallerydan rasm tanlanmadi!'));
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    });
+  }
 
   void _createMenu() {
     setState(() {
@@ -21,16 +40,17 @@ class _AddMenuPageState extends State<AddMenuPage> {
     });
     String name = _nameController.text.trim().toString();
     String price = _priceController.text.trim().toString();
+    String image = _imageController.text.trim().toString();
 
-    if (name.isEmpty || price.isEmpty) return;
-    _apiCreateMenu(name, price);
+    if (name.isEmpty || price.isEmpty || image.isEmpty) return;
+    _apiCreateMenu(name, price, image);
   }
 
-  _apiCreateMenu(String name, String price) {
+  _apiCreateMenu(String name, String price, String image) {
     setState(() {
       isLoading = true;
     });
-    MenuModel menu = MenuModel(name: name, price: price);
+    MenuModel menu = MenuModel(name: name, price: price, image: image);
     RTDBService.addMenu(menu).then(
       (value) => {
         setState(() {
@@ -73,7 +93,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
             ),
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              _getImage();
+            },
             child: Container(
               margin: EdgeInsets.all(12),
               height: 200,
@@ -81,12 +103,42 @@ class _AddMenuPageState extends State<AddMenuPage> {
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
-                child: Icon(
-                  Icons.add_a_photo_outlined,
-                  size: 80,
-                  color: Colors.grey,
-                ),
+              child: _image == null
+                  ? Center(
+                      child: Icon(
+                        Icons.add_a_photo_outlined,
+                        size: 80,
+                        color: Colors.grey,
+                      ),
+                    )
+                  : Image.file(_image!, fit: BoxFit.cover),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Text(
+              "Menu uchun taom rasmini kiriting",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            height: 54,
+            margin: EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextField(
+              controller: _imageController,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: "Masalan: https:///shajdh",
+                hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
           ),

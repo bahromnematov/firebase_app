@@ -20,15 +20,17 @@ class RTDBService {
     for (var child in snapshot.children) {
       var jsonMenu = jsonEncode(child.value);
       Map<String, dynamic> map = jsonDecode(jsonMenu);
-      var menu = MenuModel(name: map['name'], price: map['price']);
+      var menu = MenuModel(
+        name: map['name'],
+        price: map['price'],
+        image: map['image'] ?? "",
+      );
       menus.add(menu);
     }
     return menus;
   }
 
-
-
- static String formatPrice(String price) {
+  static String formatPrice(String price) {
     final number = int.tryParse(price.replaceAll(" ", "")) ?? 0;
     final formatter = NumberFormat("#,###", "en_US");
     return formatter.format(number).replaceAll(",", " ");
